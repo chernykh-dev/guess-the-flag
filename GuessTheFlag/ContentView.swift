@@ -8,10 +8,14 @@
 import SwiftUI
 
 struct ContentView: View {
+    private let maxQuestions = 8
+    
     @State private var showingScore = false
     @State private var scoreTitle = ""
-    
     @State private var userScore = 0
+    
+    @State private var showingFinal = false
+    @State private var currentQuestion = 0
     
     @State private var countries = ["Estonia", "France", "Germany", "Ireland", "Italy", "Nigeria", "Poland", "Spain", "UK", "US"].shuffled()
     @State private var correctAnswer = Int.random(in: 0...2)
@@ -72,6 +76,11 @@ struct ContentView: View {
         } message: {
             Text("Your score is \(userScore)")
         }
+        .alert(userScore == maxQuestions ? "Congratulations!" : "You're finish", isPresented: $showingFinal) {
+            Button("Try Again", action: tryAgain)
+        } message: {
+            Text("You're finish with score \(userScore)")
+        }
     }
     
     func flagTapped(_ number: Int) {
@@ -79,15 +88,28 @@ struct ContentView: View {
             scoreTitle = "Correct"
             userScore += 1
         } else {
-            scoreTitle = "Wrong, it's \(countries[correctAnswer]) flag"
+            scoreTitle = "Wrong, it's \(countries[number]) flag"
         }
         
-        showingScore = true
+        currentQuestion += 1
+        
+        if currentQuestion == maxQuestions {
+            showingFinal = true
+        } else {
+            showingScore = true
+        }
     }
     
     func askQuestion() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+    }
+    
+    func tryAgain() {
+        askQuestion()
+        
+        userScore = 0
+        currentQuestion = 1
     }
 }
 
